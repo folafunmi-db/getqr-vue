@@ -6,7 +6,7 @@
 		</p>
 		<section class="history-list">
 			<ul>
-				<li v-for="item in 10" :key="item">
+				<li v-for="(link, idx) in getLinks" :key="idx">
 					<v-card
 						elevation="2"
 						color="#010847"
@@ -14,7 +14,7 @@
 						width="180px"
 						><img
 							class="qr-history"
-							src="https://qrtag.net/api/qr.png"
+							:src="link"
 							alt="qrtag"
 					/></v-card>
 					<span>www.google.com</span>
@@ -25,7 +25,13 @@
 </template>
 
 <script>
-export default {};
+export default {
+	computed: {
+		getLinks() {
+			return this.$store.getters.getAllLinks;
+		},
+	},
+};
 </script>
 
 <style lang="scss" scoped>

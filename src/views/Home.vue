@@ -2,15 +2,22 @@
 	<div class="home">
 		<section class="input-stack">
 			<h2>Enter your URL here 👇🏾</h2>
+			<p class="trials" v-if="!exceededTrials">
+				You only have 10 trials.
+			</p>
+			<p class="trials" v-else>
+				You've exceeded your 10 trials. Checkout the history page or
+				refresh the page for 10 more trials.
+			</p>
 			<input
 				type="text"
 				placeholder="https://www.google.com/"
 				@input="update"
+				@keyup.enter="setLink"
 				:value="text"
 			/>
 			<p v-if="validUrl === false" class="invalid">
-				😉Nice try. Enter a valid URL, such as
-				"https://www.google.com".
+				😉Nice try. Enter a valid URL, such as "https://www.google.com".
 			</p>
 			<p v-else-if="validUrl === true" class="valid">
 				👍🏾Your URL IS VALID.
@@ -21,6 +28,7 @@
 				large
 				x-large
 				dark
+				:disabled="exceededTrials"
 				@click="setLink"
 				>Generate QR</v-btn
 			>
@@ -35,18 +43,14 @@
 				max-width="350px"
 				class="qr-shell"
 			>
-				<img
-					class="qr-code"
-					v-if="validUrl"
-					:src="qrLink"
-					alt="qrtag"
+				<img class="qr-code" v-if="validUrl" :src="qrLink" alt="qrtag"
 			/></v-card>
 
-			<div class="btn-group">
-				<a href="" :download="qrLink">
+			<div class="btn-group" v-if="validUrl">
+				<a :href="qrLink" download="qr-code.svg" target="_blank">
 					<v-btn color="#010847" elevation="2" dark>Get SVG</v-btn>
 				</a>
-				<a href="" :download="qrLink">
+				<a :href="qrLink" download="qr-code.png" target="_blank">
 					<v-btn color="#f45301" elevation="2" dark>Get PNG</v-btn>
 				</a>
 			</div>
@@ -64,6 +68,9 @@ export default {
 			validUrl: null,
 		};
 	},
+	mounted() {
+		this.text = "";
+	},
 	computed: {
 		qrLink() {
 			if (this.link !== "") {
@@ -71,13 +78,20 @@ export default {
 			}
 			return "";
 		},
+
+		exceededTrials() {
+			if (this.$store.getters.getAllLinks.length >= 10) {
+				return true;
+			}
+			return false;
+		},
 	},
 	methods: {
 		update(e) {
 			this.text = e.target.value;
 		},
 		setLink() {
-			var pattern = new RegExp(
+			let pattern = new RegExp(
 				"^(https?:\\/\\/)?" + // protocol
 				"((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
 				"((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
@@ -85,12 +99,18 @@ export default {
 				"(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
 					"(\\#[-a-z\\d_]*)?$",
 				"i"
-			);
+			); // fragment locator
+
 			if (pattern.test(this.text)) {
 				this.link = this.text;
 				this.validUrl = true;
+				this.$store.commit(
+					"setCurrentLink",
+					`https://qrtag.net/api/qr.png?url=${this.link}`
+				);
 			} else {
 				this.validUrl = false;
+				this.text = "";
 			}
 		},
 	},
@@ -129,6 +149,13 @@ export default {
 			color: transparent;
 		}
 
+		.trials {
+			padding: 0;
+			margin: 0;
+			text-align: left;
+			max-width: 25rem;
+		}
+
 		input {
 			width: 100%;
 			height: 3rem;
@@ -150,6 +177,8 @@ export default {
 			font-size: 15px;
 			font-weight: 600;
 			font-family: "Montserrat", sans-serif;
+			max-width: 25rem;
+			text-align: left;
 		}
 
 		.valid {
