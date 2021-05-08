@@ -1,18 +1,190 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+	<div class="home">
+		<section class="input-stack">
+			<h2>Enter your URL here 👇🏾</h2>
+			<input
+				type="text"
+				placeholder="https://www.google.com/"
+				@input="update"
+				:value="text"
+			/>
+			<p v-if="validUrl === false" class="invalid">
+				😉Nice try. Enter a valid URL, such as
+				"https://www.google.com".
+			</p>
+			<p v-else-if="validUrl === true" class="valid">
+				👍🏾Your URL IS VALID.
+			</p>
+			<v-btn
+				color="#f45301"
+				elevation="2"
+				large
+				x-large
+				dark
+				@click="setLink"
+				>Generate QR</v-btn
+			>
+		</section>
+		<section class="qr-section">
+			<v-card
+				elevation="2"
+				color="#010847"
+				min-height="270px"
+				max-height="350px"
+				min-width="270px"
+				max-width="350px"
+				class="qr-shell"
+			>
+				<img
+					class="qr-code"
+					v-if="validUrl"
+					:src="qrLink"
+					alt="qrtag"
+			/></v-card>
+
+			<div class="btn-group">
+				<a href="" :download="qrLink">
+					<v-btn color="#010847" elevation="2" dark>Get SVG</v-btn>
+				</a>
+				<a href="" :download="qrLink">
+					<v-btn color="#f45301" elevation="2" dark>Get PNG</v-btn>
+				</a>
+			</div>
+		</section>
+	</div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
 export default {
-  name: 'Home',
-  components: {
-    HelloWorld
-  }
-}
+	name: "Home",
+	data() {
+		return {
+			text: "",
+			link: "",
+			validUrl: null,
+		};
+	},
+	computed: {
+		qrLink() {
+			if (this.link !== "") {
+				return `https://qrtag.net/api/qr.png?url=${this.link}`;
+			}
+			return "";
+		},
+	},
+	methods: {
+		update(e) {
+			this.text = e.target.value;
+		},
+		setLink() {
+			var pattern = new RegExp(
+				"^(https?:\\/\\/)?" + // protocol
+				"((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
+				"((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
+				"(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
+				"(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
+					"(\\#[-a-z\\d_]*)?$",
+				"i"
+			);
+			if (pattern.test(this.text)) {
+				this.link = this.text;
+				this.validUrl = true;
+			} else {
+				this.validUrl = false;
+			}
+		},
+	},
+};
 </script>
+
+<style lang="scss" scoped>
+.home {
+	display: flex;
+	flex-wrap: wrap;
+	height: 100%;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+	gap: 2rem;
+
+	.input-stack {
+		display: flex;
+		align-items: flex-start;
+		justify-content: flex-start;
+		flex-direction: column;
+		gap: 0.5rem;
+
+		h2 {
+			font-family: "Montserrat", sans-serif;
+			/* font-size: 35px; */
+			font-size: clamp(1.5rem, 6vw - 1.1rem, 2.7rem);
+			background: rgb(1, 8, 71);
+			background: linear-gradient(
+				90deg,
+				rgba(1, 8, 71, 1) 0%,
+				rgba(244, 83, 1, 1) 100%
+			);
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
+		}
+
+		input {
+			width: 100%;
+			height: 3rem;
+			border: 3px solid #b0d7f8;
+			border-radius: 5px;
+			padding: 0.5rem;
+			font-size: 15px;
+			color: #010847;
+			outline: 1px transparent #010847 !important;
+
+			&:focus,
+			&:active {
+				border: 3px solid #f45301;
+				outline: none;
+			}
+		}
+
+		p {
+			font-size: 15px;
+			font-weight: 600;
+			font-family: "Montserrat", sans-serif;
+		}
+
+		.valid {
+			color: green;
+		}
+
+		.invalid {
+			color: red;
+		}
+	}
+
+	.qr-section {
+		padding: 0.5rem;
+
+		.qr-shell {
+			display: grid;
+			place-items: center;
+
+			.qr-code {
+				width: 100%;
+				height: 100%;
+			}
+		}
+
+		.btn-group {
+			display: flex;
+			justify-content: center;
+			align-content: center;
+			gap: 0.5rem;
+			flex-wrap: wrap;
+			margin: 0.7rem;
+			a {
+				text-decoration: none;
+			}
+		}
+	}
+}
+</style>

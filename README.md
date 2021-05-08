@@ -8,6 +8,7 @@ Built using:
 -  Vuetify
 -  qrtag.net API
 -  Vuex
+-  SCSS
 
 ## Project setup
 
