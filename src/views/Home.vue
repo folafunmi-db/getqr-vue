@@ -15,6 +15,7 @@
 				@input="update"
 				@keyup.enter="setLink"
 				:value="text"
+				:disabled="exceededTrials"
 			/>
 			<p v-if="validUrl === false" class="invalid">
 				😉Nice try. Enter a valid URL, such as "https://www.google.com".
@@ -43,14 +44,14 @@
 				max-width="350px"
 				class="qr-shell"
 			>
-				<img class="qr-code" v-if="validUrl" :src="qrLink" alt="qrtag"
+				<img class="qr-code" v-if="validUrl" :src="qrLinkSvg" alt="qrtag"
 			/></v-card>
 
 			<div class="btn-group" v-if="validUrl">
-				<a :href="qrLink" download="qr-code.svg" target="_blank">
+				<a :href="qrLinkSvg" download="qr-code.svg" target="_blank">
 					<v-btn color="#010847" elevation="2" dark>Get SVG</v-btn>
 				</a>
-				<a :href="qrLink" download="qr-code.png" target="_blank">
+				<a :href="qrLinkPng" download="qr-code.png" target="_blank">
 					<v-btn color="#f45301" elevation="2" dark>Get PNG</v-btn>
 				</a>
 			</div>
@@ -59,6 +60,8 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations } from "vuex";
+
 export default {
 	name: "Home",
 	data() {
@@ -72,7 +75,16 @@ export default {
 		this.text = "";
 	},
 	computed: {
-		qrLink() {
+		...mapGetters(["getAllLinks"]),
+
+		qrLinkSvg() {
+			if (this.link !== "") {
+				return `https://qrtag.net/api/qr.svg?url=${this.link}`;
+			}
+			return "";
+		},
+
+		qrLinkPng() {
 			if (this.link !== "") {
 				return `https://qrtag.net/api/qr.png?url=${this.link}`;
 			}
@@ -80,13 +92,15 @@ export default {
 		},
 
 		exceededTrials() {
-			if (this.$store.getters.getAllLinks.length >= 10) {
+			if (this.getAllLinks.length >= 10) {
 				return true;
 			}
 			return false;
 		},
 	},
 	methods: {
+		...mapMutations(["setCurrentLink"]),
+
 		update(e) {
 			this.text = e.target.value;
 		},
@@ -104,8 +118,7 @@ export default {
 			if (pattern.test(this.text)) {
 				this.link = this.text;
 				this.validUrl = true;
-				this.$store.commit(
-					"setCurrentLink",
+				this.setCurrentLink(
 					`https://qrtag.net/api/qr.png?url=${this.link}`
 				);
 			} else {

@@ -12,12 +12,9 @@
 						color="#010847"
 						height="180px"
 						width="180px"
-						><img
-							class="qr-history"
-							:src="link"
-							alt="qrtag"
+						><img class="qr-history" :src="link" alt="qrtag"
 					/></v-card>
-					<span>www.google.com</span>
+					<span>{{link}}</span>
 				</li>
 			</ul>
 		</section>
@@ -25,11 +22,15 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
 	computed: {
-		getLinks() {
-			return this.$store.getters.getAllLinks;
-		},
+		...mapGetters({ getLinks: "getAllLinks" }),
+
+		// getLinks() {
+		// 	return this.getAllLinks;
+		// },
 	},
 };
 </script>

@@ -1,6 +1,6 @@
 # QR code generator
 
-Enter a valid, press the button(or enter key) and get the QR(almost instantly). The code can then be downloaded as SVG or PNG.
+Enter a valid, press the button(or enter key) and get the QR(almost instantly). The QR code can then be downloaded as SVG or PNG.
 
 Hosted on Vercel at [GetQR](https://getqr.vercel.app/)
 
